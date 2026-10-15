@@ -1,4 +1,4 @@
-// GymLog — service worker v3.14.1 (2026-10-14)
+// GymLog — service worker v3.14.2 (2026-10-15)
 //
 // Compito unico: far aprire l'app anche senza rete, dall'icona sulla Home.
 // Non tocca mai i dati degli allenamenti (restano nel localStorage della
@@ -29,10 +29,14 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('activate', event => {
-  // Elimina eventuali cache con altri nomi lasciate da prove precedenti.
+  // Elimina solo le vecchie cache di GymLog (nomi che iniziano con
+  // "gymlog-"). Le cache delle altre app pubblicate sullo stesso account
+  // GitHub (es. Mind Flayer Mobile) non vengono toccate.
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(keys => Promise.all(
+        keys.filter(k => k.startsWith('gymlog-') && k !== CACHE)
+            .map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
